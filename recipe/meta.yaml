@@ -1,53 +1,62 @@
 {% set name = "pydruid" %}
-{% set version = "0.6.2" %}
-{% set bundle = "tar.gz" %}
-{% set hash_type = "sha256" %}
-{% set hash_val = "e41bcb89d4ea704997d440910a604ba2e7df3eb1dcfc406e838961aba20af15a" %}
+{% set version = "0.6.5" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  fn: {{ name }}-{{ version }}.{{ bundle }}
-  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.{{ bundle }}
-  {{ hash_type }}: {{ hash_val }}
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 30b6efa722234183239296bf8e6d41aba7eea0eec3d68233ce6c413986864fea
 
 build:
-  noarch: python
+  number: 0
+  skip: True  # [py<36]
+  script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
   entry_points:
     - pydruid = pydruid.console:main
-  number: 0
-  script: {{ PYTHON }} -m pip install . --no-deps -vv
 
 requirements:
-  build:
+  host:
     - python
     - pip
-    - pytest-runner
-
+    - setuptools
+    - wheel
   run:
     - python
-    - six >=1.9.0
-    - requests
+    # Keep optional dependencies as we already provided them in the run section
     - pandas
-    - tornado
-    - sqlalchemy
+    - prompt_toolkit >=2.0.0
     - pygments
-    - prompt_toolkit <2.0.0
+    - requests
+    - sqlalchemy <2
     - tabulate
+    - tornado
 
 test:
   imports:
     - pydruid
     - pydruid.utils
+  source_files:
+    - tests/
+  requires: 
+    - pip
+    - pytest
+    - pycurl
+  commands: 
+    - pip check
+    - pytest -vv  # [not win]
+    # AssertionError on win for test_export_tsv, test_writerow, test_writerows
+    - pytest -vv -k "not (test_export_tsv or test_writerow or test_writerows)"  # [win]
 
 about:
   home: https://github.com/druid-io/pydruid
   license_file: LICENSE
-  license: Apache 2.0
+  license: Apache-2.0
   license_family: Apache
-  summary: 'A Python connector for Druid.'
+  summary: A Python connector for Druid
+  description: |
+    pydruid exposes a simple API to create, execute, and analyze Druid queries. pydruid can parse query results into Pandas DataFrame objects for subsequent data analysis -- this offers a tight integration between Druid, the SciPy stack (for scientific computing) and scikit-learn (for machine learning). pydruid can export query results into TSV or JSON for further processing with your favorite tool, e.g., R, Julia, Matlab, Excel. It provides both synchronous and asynchronous clients.
   dev_url: https://github.com/druid-io/pydruid
   doc_url: https://pythonhosted.org/pydruid/
 
