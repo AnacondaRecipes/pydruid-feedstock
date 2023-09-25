@@ -37,10 +37,15 @@ test:
   imports:
     - pydruid
     - pydruid.utils
+  source_files:
+    - tests/
   requires: 
     - pip
+    - pytest
+    - pycurl
   commands: 
     - pip check
+    - pytest -vv
 
 about:
   home: https://github.com/druid-io/pydruid
