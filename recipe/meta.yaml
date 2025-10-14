@@ -1,5 +1,5 @@
 {% set name = "pydruid" %}
-{% set version = "0.6.5" %}
+{% set version = "0.6.9" %}
 
 package:
   name: {{ name|lower }}
@@ -7,11 +7,11 @@ package:
 
 source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 30b6efa722234183239296bf8e6d41aba7eea0eec3d68233ce6c413986864fea
+  sha256: 63c41b33ab47fbb71cc25d3f3316cad78f18bfe947fa108862dd841d1f44fe49
 
 build:
   number: 0
-  skip: True  # [py<36]
+  skip: true  # [py<36]
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
   entry_points:
     - pydruid = pydruid.console:main
@@ -32,6 +32,8 @@ requirements:
     - sqlalchemy <2
     - tabulate
     - tornado
+  run_constrained:
+    - prompt_toolkit >=2.0.0
 
 test:
   imports:
@@ -39,11 +41,11 @@ test:
     - pydruid.utils
   source_files:
     - tests/
-  requires: 
+  requires:
     - pip
     - pytest
     - pycurl
-  commands: 
+  commands:
     - pip check
     - pytest -vv  # [not win]
     # AssertionError on win for test_export_tsv, test_writerow, test_writerows
